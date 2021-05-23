@@ -9,17 +9,11 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
+variables: 
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
 
 - task: DotNetCoreCLI@2
   inputs:
@@ -27,12 +21,8 @@ steps:
     projects: '**/*Test/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: dotnet build $(buildConfiguration)
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet publish --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
